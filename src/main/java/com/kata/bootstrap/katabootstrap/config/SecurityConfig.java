@@ -41,6 +41,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //                .loginPage("/login")
 //                //указываем логику обработки при логине
                 .successHandler(new LoginSuccessHandler())
+
+                .usernameParameter("email")
 //                // указываем action с формы логина
 //                .loginProcessingUrl("/login")
 //                // Указываем параметры логина и пароля с формы логина
@@ -53,9 +55,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // разрешаем делать логаут всем
                 .permitAll()
                 // указываем URL логаута
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                .logoutRequestMatcher(new AntPathRequestMatcher("/"))
                 // указываем URL при удачном логауте
-                .logoutSuccessUrl("/login?logout")
+               .logoutSuccessUrl("/")
                 //выклчаем кроссдоменную секьюрность (на этапе обучения неважна)
                 .and().csrf().disable();
 

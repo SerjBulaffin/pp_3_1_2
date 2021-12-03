@@ -21,6 +21,11 @@ public class UserDaoImpl implements UserDao {
         return getAllUsers().stream().filter(u -> u.getName().equals(name)).findAny().orElse(null);
     }
 
+    @Override
+    public User getUserByEmail(String email) {
+        return getAllUsers().stream().filter(u -> u.getEmail().equals(email)).findAny().orElse(null);
+    }
+
     //Получение всех пользователей из БД
     @Override
     public List<User> getAllUsers() {

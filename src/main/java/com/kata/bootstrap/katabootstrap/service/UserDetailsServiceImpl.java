@@ -23,9 +23,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     // «Пользователь» – это просто Object. В большинстве случаев он может быть
     //  приведен к классу UserDetails.
     // Для создания UserDetails используется интерфейс UserDetailsService, с единственным методом:
+//    @Override
+//    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
+//        return userDao.getUserByName(s);
+//    }
+
+    //Получение юзера по email
     @Override
-    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        return userDao.getUserByName(s);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userDao.getUserByEmail(email);
     }
 
     //получение юзера по ID
@@ -35,6 +41,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     public User getUserByName(String name) {
         return userDao.getUserByName(name);
+    }
+
+    public User getUserByEmail(String email) {
+        return userDao.getUserByEmail(email);
     }
 
     public List<User> getAllUsers() {

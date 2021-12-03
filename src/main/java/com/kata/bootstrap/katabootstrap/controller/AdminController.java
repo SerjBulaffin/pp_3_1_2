@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("")
 //@Transactional
 public class AdminController {
 
@@ -33,9 +33,14 @@ public class AdminController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public String loginPage() {
-        return "login";
+//    @RequestMapping(value = "/login", method = RequestMethod.GET)
+//    public String loginPage() {
+//        return "login";
+//    }
+
+    @GetMapping("/index")
+    public String indexHtml() {
+        return "index";
     }
 
     //@GetMapping("/admin")
