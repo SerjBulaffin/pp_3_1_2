@@ -38,10 +38,10 @@ public class AdminController {
 //        return "login";
 //    }
 
-    @GetMapping("/index")
-    public String indexHtml() {
-        return "index";
-    }
+//    @GetMapping("/index")
+//    public String indexHtml() {
+//        return "index";
+//    }
 
     //@GetMapping("/admin")
     @RequestMapping(value = "/admin", method = RequestMethod.GET)
@@ -63,7 +63,7 @@ public class AdminController {
     //@RequestMapping(value = "/admin/user/{id}", method = RequestMethod.GET)
     public String userPageByID(@PathVariable("id") Long id, Model model) {
         User user = userDetailsService.getUser(id);
-        user.getRoles().size();
+        //user.getRoles().size();
         model.addAttribute("user", user);
 
         return "user";
@@ -158,16 +158,9 @@ public class AdminController {
 
         //ПАролли
         final String oldPassword = userDetailsService.getUser(id).getPassword();
-//        if (!oldPassword.equals(user.getPassword())) {
-//            user.setPassword(passwordEncoder.encode(user.getPassword()));
-//        }
-
-        if (user.getPassword().isEmpty()) {
-            user.setPassword(oldPassword);
-        } else {
+        if (!oldPassword.equals(user.getPassword())) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
-
 
         //отредактировать на случай если нет ролей
         Set<Role> roleSet = new HashSet<>();
