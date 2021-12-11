@@ -11,15 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("")
-//@Transactional
+@RequestMapping("/admin")
+@Transactional
 public class AdminController {
 
     private UserDetailsServiceImpl userDetailsService;
@@ -43,10 +43,13 @@ public class AdminController {
 //        return "index";
 //    }
 
-    //@GetMapping("/admin")
-    @RequestMapping(value = "/admin", method = RequestMethod.GET)
-    public String userList(Model model) {
-        model.addAttribute("allUsers", userDetailsService.getAllUsers());
+    @GetMapping
+    //@RequestMapping(value = "/admin", method = RequestMethod.GET)
+    public String userList(Model model, Principal principal) {
+        model.addAttribute("users", userDetailsService.getAllUsers());
+        model.addAttribute("current", userDetailsService.getUserByName(principal.getName()));
+        model.addAttribute("newUser", new User());
+        model.addAttribute("all_roles", roleService.allRoles());
         return "admin";
     }
 
@@ -58,121 +61,54 @@ public class AdminController {
 //        return "user_user";
 //    }
 
+    //Создание нового пользователя
+    @PostMapping
+    public String saveUser(@ModelAttribute("user") User user,
+                           @RequestParam("role_select") Long[] roleIds,
+                           @RequestParam("password") String password) {
 
-    @GetMapping("/admin/user/{id}")
-    //@RequestMapping(value = "/admin/user/{id}", method = RequestMethod.GET)
-    public String userPageByID(@PathVariable("id") Long id, Model model) {
-        User user = userDetailsService.getUser(id);
-        //user.getRoles().size();
-        model.addAttribute("user", user);
-
-        return "user";
-    }
-
-    //Добавление нового пользователя
-    //@GetMapping("/admin/new")
-    @RequestMapping(value = "/admin/new", method = RequestMethod.GET)
-    public String newUser(@ModelAttribute("newUser") User user) {
-        return "new";
-    }
-
-
-    @PostMapping()
-    public String createUser(@ModelAttribute("newUser") User user,
-                             @RequestParam(value = "nameRoles", required = false) String[] nameRoles) {
-
-        //если одно из полей пустое не создаем пользователя
-        if (user.getName().isEmpty() | user.getPassword().isEmpty() | user.getEmail().isEmpty()) {
-            return "error_add_user";
+        Set<Role> roles = new HashSet<>();
+        for (Long id : roleIds) {
+            roles.add(roleService.getRoleById(id));
         }
+        user.setRoles(roles);
 
-        user.getRoles();
-        //если пользователь с таким именем существует возвращаемся в админку
-        if (userDetailsService.getUserByName(user.getName()) != null) {
-            return "redirect:/admin";
-        }
+        String bCryptPassword = password.isEmpty() ?
+                userDetailsService.getUser(user.getId()).getPassword() :
+                passwordEncoder.encode(password);
 
-        //шифрование пароля введенного при регистрации
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        //создание сета с ролями
-        Set<Role> roleSet = new HashSet<>();
-
-        //получаем наши чекбоксы из страницы регистрации, если чтото есть, вставляем в набор ролей
-        if (nameRoles != null) {
-            for (String role : nameRoles) {
-                roleSet.add(roleService.getRoleByName(role));
-            }
-        }
-
-        //установка ролей юзеру
-        user.setRoles(roleSet);
-
-        //запись нового юзера в БД
+        user.setPassword(bCryptPassword);
         userDetailsService.addUser(user);
-
-        //возврат в админку
         return "redirect:/admin";
     }
-    //окончание добавления пользователя
 
     //Удаление пользователя
     @DeleteMapping("/{id}")
-    public String deletUser(@PathVariable("id") Long id) {
+    public String deleteUser(@PathVariable("id") Long id) {
 
         userDetailsService.removeUserById(id);
         return "redirect:/admin";
     }
 
     //Обновление пользователя
-    @Transactional
-    @GetMapping("/admin/{id}/edit")
-    //@RequestMapping(value = "/admin/{id}/edit", method = RequestMethod.PATCH)
-    public String edit(@PathVariable("id") Long id, Model model) {
-        User user = userDetailsService.getUser(id);
-
-        List<String> roleAdmin = new ArrayList<>(2);
-        List<String> roleTmp = user.getRoles().stream().map(r -> r.getRole()).collect(Collectors.toList());
-
-        if (roleTmp.contains("ROLE_USER")) {
-            roleAdmin.add(0, "checked");
-        } else {
-            roleAdmin.add(0, null);
-        }
-
-        if (roleTmp.contains("ROLE_ADMIN")) {
-            roleAdmin.add(1, "checked");
-        } else {
-            roleAdmin.add(1, null);
-        }
-
-        model.addAttribute("roleAdmin", roleAdmin);
-        model.addAttribute("editUser", user);
-        return "edit";
-    }
-
     @PatchMapping("/{id}")
     public String updateUser(@ModelAttribute("user") User user,
-                             @PathVariable("id") Long id,
-                             @RequestParam(value = "nameRoles", required = false) String[] nameRoles) {
+                             @RequestParam("role_select") Long[] roleIds,
+                             @RequestParam("password") String password) {
 
-        //ПАролли
-        final String oldPassword = userDetailsService.getUser(id).getPassword();
-        if (!oldPassword.equals(user.getPassword())) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
+        String bCryptPassword = password.isEmpty() ?
+                userDetailsService.getUser(user.getId()).getPassword() :
+                passwordEncoder.encode(password);
 
         //отредактировать на случай если нет ролей
-        Set<Role> roleSet = new HashSet<>();
-        if (nameRoles != null) {
-            for (String role : nameRoles) {
-                roleSet.add(roleService.getRoleByName(role));
-            }
+        Set<Role> roles = new HashSet<>();
+        for (Long id : roleIds) {
+            roles.add(roleService.getRoleById(id));
         }
+        user.setRoles(roles);
 
-        user.setRoles(roleSet);
-
-        userDetailsService.updateUser(id, user);
+        user.setPassword(bCryptPassword);
+        userDetailsService.updateUser(user.getId(), user);
         return "redirect:/admin";
     }
 

@@ -18,7 +18,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User getUserByName(String name) {
-        return getAllUsers().stream().filter(u -> u.getName().equals(name)).findAny().orElse(null);
+        return getAllUsers().stream().filter(u -> u.getFirstName().equals(name)).findAny().orElse(null);
     }
 
     @Override

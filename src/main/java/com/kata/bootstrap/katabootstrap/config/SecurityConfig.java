@@ -43,6 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .successHandler(new LoginSuccessHandler())
                 //настройка входа по email
                 .usernameParameter("email")
+                .failureUrl("/login?error")
 //                // указываем action с формы логина
 //                .loginProcessingUrl("/login")
 //                // Указываем параметры логина и пароля с формы логина

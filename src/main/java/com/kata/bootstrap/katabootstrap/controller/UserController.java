@@ -27,6 +27,6 @@ public class UserController {
         User user = userDetailsService.getUserByName(principal.getName());
         model.addAttribute("user", user);
 
-        return "user_user";
+        return "user";
     }
 }

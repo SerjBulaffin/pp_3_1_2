@@ -19,17 +19,20 @@ public class User implements UserDetails {
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private String name; // уникальное значение
+    private String firstName; // уникальное значение
+
+    @Column
+    private String lastName;
+
+    @Column
+    private byte age;
 
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
+    @Column(unique = true, nullable = false)
     private String email;
 
-    //    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-//    @JoinColumn(name = "id_role")
-//    private Set<Role> roles;
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -39,8 +42,10 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String name, String password, String email, Set<Role> roles) {
-        this.name = name;
+    public User(String firstName, String lastName, byte age, String password, String email, Set<Role> roles) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.age = age;
         this.password = password;
         this.email = email;
         this.roles = roles;
@@ -54,12 +59,12 @@ public class User implements UserDetails {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String name) {
+        this.firstName = name;
     }
 
     public void setPassword(String password) {
@@ -82,6 +87,22 @@ public class User implements UserDetails {
         this.email = email;
     }
 
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public byte getAge() {
+        return age;
+    }
+
+    public void setAge(byte age) {
+        this.age = age;
+    }
+
 
     /*
     используется в классе class LoginSuccessHandler для получения списка ролей
@@ -98,7 +119,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return name;
+        return firstName;
     }
 
     //Срок учетной записи не истек
@@ -125,11 +146,21 @@ public class User implements UserDetails {
         return true;
     }
 
+    //Возвращение списка ролей одной строкой
+    public String getRolesToString() {
+        StringBuilder sb = new StringBuilder();
+        for (Role r : getRoles()) {
+            sb.append(r.getRole().replace("ROLE_", "")).append(" ");
+        }
+
+        return sb.deleteCharAt(sb.length() - 1).toString();
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", name='" + firstName + '\'' +
                 ", password='" + password + '\'' +
                 ", roles=" + roles +
                 '}';
