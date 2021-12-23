@@ -1,6 +1,7 @@
 package com.kata.bootstrap.katabootstrap.repository;
 
 import com.kata.bootstrap.katabootstrap.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 

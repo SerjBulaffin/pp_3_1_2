@@ -18,19 +18,19 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "first_name", unique = true, nullable = false)
     private String firstName; // уникальное значение
 
-    @Column
+    @Column(name = "last_name")
     private String lastName;
 
-    @Column
+    @Column(name = "age")
     private byte age;
 
-    @Column(nullable = false)
+    @Column(name ="password", nullable = false)
     private String password;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
     @ManyToMany(cascade = CascadeType.MERGE)
